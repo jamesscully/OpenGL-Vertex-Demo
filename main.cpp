@@ -1,17 +1,7 @@
 /*
- * GLUT Shapes Demo
- *
- * Written by Nigel Stewart November 2003
- * Modified by James Scully for Coursework!
+ * Vertice Count Demo!
  *
  *
- * This program is test harness for the sphere, cone
- * and torus shapes in GLUT.
- *
- * Spinning wireframe and smooth shaded shapes are
- * displayed until the ESC or q key is pressed.  The
- * number of geometry stacks and slices can be adjusted
- * using the + and - keys.
  */
 
 #ifdef __APPLE__
@@ -25,13 +15,14 @@
 #include <cstring>
 #include <GL/freeglut.h>
 #include <Camera.h>
+#include <BillboardText.h>
 
-static int slices = 16;
-static int stacks = 16;
+static int slices = 16; int stacks = 16;    //  Shape Variables
+double rotSpeed = 50;                       //
 
-double rotSpeed = 50;
+double mX, mY;
 
-
+Camera cam;     // create camera object
 
 bool tFpsCounter = false,   //
      tWireframe = true,     //  Bools for toggling FPS/WF/Solid
@@ -48,71 +39,62 @@ static void resize(int width, int height)
     glLoadIdentity();
     glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
 
-    gluLookAt(0,5,0, 0, 0,-6, 0, 6, 0);
+    gluLookAt(cam.cPos.x, cam.cPos.y, cam.cPos.z,
+              cam.tPos.x, cam.tPos.y, cam.tPos.z,
+              cam.oPos.x, cam.oPos.y, cam.oPos.z);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity() ;
 }
 
-void renderText(
-		float x,
-		float y,
-		float z,
-		void *font,
-		char *string) {
 
-  char *c;
-  glRasterPos3f(x,y,z);
-  for (c=string; *c != '\0'; c++) {
-    glutBitmapCharacter(font, *c);
-  }
+
+void renderBillboardText(vec3D loc, void *font, char *string) {
+
 }
 
-int frame=0,time,timebase=0;
-double fps;
-char fpsCounter[64];
-
-static void drawGrid(float yoffset, int amt) {
+static void drawGrid(int amt) {
+    int nAmt = (amt * -1);  // create variable for negative amount
     glBegin(GL_LINES);
         glColor3f(0, 0.5, 0);
-        for(int x = (amt * -1); x < amt; x++) {
-
+        for(int x = nAmt; x < amt; x++) {
             // x plane
-            glVertex3f(x, 0 + yoffset, amt);
-            glVertex3f(x, 0 + yoffset, (amt * -1));
-
+            glVertex3f(x, 0, amt);
+            glVertex3f(x, 0, nAmt);
             // z plane
-            glVertex3f(amt, 0 + yoffset, x);
-            glVertex3f((amt * -1), 0 + yoffset, x);
+            glVertex3f(amt, 0, x);
+            glVertex3f(nAmt, 0, x);
         }
     glEnd();
-
-    glBegin(GL_QUADS);
-
-    glEnd();
 }
+
+int frame=0,time,timebase=0;    //
+double fps;                     //  Variables and char array for the FPS counter
+char fpsCounter[64];            //
 
 static void display(void)
 {
-
-
     char textToDisplay[128];
     int shapeRot = 90;
 
+    float shapeHeight = 2;    // for y coords
+
     const double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;   // time passed
     const double a = t*rotSpeed;
-
-    Camera cam;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(0.3,0.3,0.3);
     glEnable(GL_LIGHTING);
 
+    /*
+    //   SOLID SHAPES
+    */
+
 
     if(tSolid) {
         glPushMatrix();
 
-            glTranslated(-2.4, 0 ,-6);
+            glTranslated(-2.4, shapeHeight ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutSolidSphere(1,slices,stacks);
@@ -120,25 +102,28 @@ static void display(void)
         glPopMatrix();
 
         glPushMatrix();
-            glTranslated(0,0.8,-6);
+            glTranslated(0, (shapeHeight + 0.8) ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutSolidCone(1,1.8,slices,stacks);
         glPopMatrix();
 
         glPushMatrix();
-            glTranslated(2.4,0.8 ,-6);
+            glTranslated(2.4, (shapeHeight + 0.8) ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutSolidCylinder(1, 1.8, slices, stacks);
         glPopMatrix();
 
-        // wire outline
+    /*
+    //  EDGE HIGHLIGHTING
+    */
+
         glColor3d(0.1,0.1,0.1);
 
         glPushMatrix();
             glDisable(GL_LIGHTING);
-            glTranslated(-2.4, 0 ,-6);
+            glTranslated(-2.4, shapeHeight ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutWireSphere(1.01,slices,stacks);
@@ -146,68 +131,77 @@ static void display(void)
         glPopMatrix();
 
         glPushMatrix();
-            glTranslated(0,0.8,-6);
+            glTranslated(0, (shapeHeight + 0.8) ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutWireCone(1.01,1.8,slices,stacks);
         glPopMatrix();
 
         glPushMatrix();
-            glTranslated(2.4,0.8 ,-6);
+            glTranslated(2.4, (shapeHeight + 0.8) ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutWireCylinder(1.01, 1.8, slices, stacks);
         glPopMatrix();
     }
 
+    /*
+    //  WIREFRAME OVERLAY
+    */
+
     glColor3d(0,1,0);
 
     if(tWireframe) {
         glPushMatrix();
-            glTranslated(-2.4,0 ,-6);
+            glTranslated(-2.4, shapeHeight ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutWireSphere(1.025,slices,stacks);
-            glShadeModel(GL_FLAT);
         glPopMatrix();
 
         glPushMatrix();
-            glTranslated(0,0.8,-6);
+            glTranslated(0, (shapeHeight + 0.8) ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutWireCone(1.025,1.8,slices,stacks);
         glPopMatrix();
 
         glPushMatrix();
-            glTranslated(2.4,0.8,-6);
+            glTranslated(2.4, (shapeHeight + 0.8) ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutWireCylinder(1.025, 1.825, slices, stacks);
         glPopMatrix();
     }
 
-         if(tFpsCounter) {
+    /*
+    //  TEXT
+    */
+
+    BillboardText txtSlices(vec3D(-0.25, 2, -6), textToDisplay),
+                  txtStacks(vec3D(-0.25, 3, -6), textToDisplay),
+                  txtFPS   (vec3D(-0.25, 4, -6), fpsCounter);
+
+
+    if(tFpsCounter) {
         glPushMatrix();
             glLoadIdentity();
-            renderText(-0.25, 2.5, -6, GLUT_BITMAP_HELVETICA_18, fpsCounter);
+            txtFPS.render();
         glPopMatrix();
     }
 
-    sprintf(textToDisplay, "Slices: %d", slices);
-
     glPushMatrix();
         glLoadIdentity();
-        renderText(-0.25, 2, -6, GLUT_BITMAP_HELVETICA_18, textToDisplay);
+
+        sprintf(textToDisplay, "Slices: %d", slices);
+        txtSlices.render();
+
+        sprintf(textToDisplay, "Stacks: %d", stacks);
+        txtStacks.render();
+
     glPopMatrix();
 
-    sprintf(textToDisplay, "Stacks: %d", stacks);
-
-    glPushMatrix();
-        glLoadIdentity();
-        renderText(-0.25, 1.8, -6, GLUT_BITMAP_HELVETICA_18, textToDisplay);
-    glPopMatrix();
-
-    drawGrid(-2, 40); // draw grid for dem aesthetics
+    drawGrid(40); // draw grid for dem aesthetics
 
     glutSwapBuffers();
 }
@@ -219,33 +213,19 @@ static void key(unsigned char key, int x, int y)
     switch (key)
     {
         case 27 :
-        case 'q':
-            exit(0);
-            break;
+        case 'q':   exit(0); break;     // quit
 
-        case '+':
-            slices++;
-            stacks++;
-            break;
+        case '+':   slices++; stacks++; break;  // increment slices & stacks
 
-        case '-':
-            if (slices>3 && stacks>3)
-            {
-                slices--;
-                stacks--;
-            }
-            break;
+        case '-':   if (slices>3 && stacks>3) { slices--; stacks--; } break;  // decrement slices & stacks
 
-        case '.':
-            rotSpeed += 10;
-        break;
+        case '.':   rotSpeed += 10; break;  // increase rotation
 
-        case ',':
-            if(rotSpeed != 0) {rotSpeed -= 10; }
-        break;
+        case ',':   if(rotSpeed != 0) {rotSpeed -= 10; } break; // slow rotation
 
+        case 'n':   cam.changeCPos(0, 2, 5);     break; // change cam position
 
-
+        case 'm':   cam.rotate(2, 2);     break; // change cam position
     }
     glutPostRedisplay();
 }
@@ -255,41 +235,25 @@ void specialKeys(int key, int x, int y)
 {
     switch(key)
     {
-        case GLUT_KEY_F1:
-            tSolid = !tSolid;
-        break;
+        case GLUT_KEY_F1:    tSolid = !tSolid;               break;
 
-        case GLUT_KEY_F2:
-            tWireframe = !tWireframe;
-        break;
+        case GLUT_KEY_F2:    tWireframe = !tWireframe;       break;
 
-        case GLUT_KEY_F3:
-            tFpsCounter = !tFpsCounter;
-        break;
+        case GLUT_KEY_F3:    tFpsCounter = !tFpsCounter;     break;
 
-        case GLUT_KEY_UP:
-            stacks++;
-            break;
+        case GLUT_KEY_UP:    stacks++;                       break;
 
-        case GLUT_KEY_DOWN:
-            if(stacks > 3) { stacks--; }
-            break;
+        case GLUT_KEY_DOWN:  if(stacks > 3) { stacks--; }    break;
 
-        case GLUT_KEY_LEFT:
-            if(slices > 3) { slices--; }
-            break;
+        case GLUT_KEY_RIGHT: slices++;                       break;
 
-        case GLUT_KEY_RIGHT:
-            slices++;
-            break;
+        case GLUT_KEY_LEFT:  if(slices > 3) { slices--; }    break;
 
-        case GLUT_KEY_HOME:
-            slices = 16;
-            stacks = 16;
-            break;
-
+        case GLUT_KEY_HOME:  slices = 16; stacks = 16;       break;
     }
 }
+
+
 
 static void idle(void)
 {
@@ -299,7 +263,7 @@ static void idle(void)
 
 	if (time - timebase > 1000) {
 		fps = (frame * 1000.0) / (time-timebase);
-		sprintf(fpsCounter, "FPS:%ld", fps);
+		sprintf(fpsCounter, "FPS: %ld", fps);
 	 	timebase = time;
 		frame = 0;
 	}
