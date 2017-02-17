@@ -11,9 +11,6 @@ Camera::Camera()
     oPos = vec3D(0, 1, 0);
 
     updateCamera();
-
-    printf("%f", tPos.y);
-
     //ctor
 }
 
@@ -25,6 +22,7 @@ Camera::~Camera()
 void Camera::changeTPos(float x, float y, float z)
 {
     tPos = vec3D(x, y, z);
+    updateCamera();
 }
 
 void Camera::changeCPos(float x, float y, float z)
@@ -36,37 +34,18 @@ void Camera::changeCPos(float x, float y, float z)
 void Camera::changeOPos(float x, float y, float z)
 {
     oPos = vec3D(x, y, z);
+    updateCamera();
 }
 
 void Camera::updateCamera()
 {
     glLoadIdentity();
-    glMatrixMode(GL_PROJECTION);
 
     gluLookAt(cPos.x, cPos.y, cPos.z,
               tPos.x, tPos.y, tPos.z,
               oPos.x, oPos.y, oPos.z);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity() ;
 }
-
-void Camera::rotate(float phi, float theta)
-{
-
-    float rad = 2.0f;
-
-    cPos.x = tPos.x + rad * cos(phi) * sin(theta);
-    cPos.x = tPos.y + rad * sin(phi) * sin(theta);
-    cPos.x = tPos.z + rad * cos(theta);
-
-    updateCamera();
-
-    //vec3D deltaVec = tPos - cPos;
-    //cPos.z = (float)(tPos.z + sin(spd)*deltaVec.x + cos(spd)*deltaVec.z);
-    //cPos.x = (float)(tPos.x + sin(spd)*deltaVec.x + cos(spd)*deltaVec.z);
-}
-
 
 
 

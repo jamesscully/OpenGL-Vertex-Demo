@@ -18,42 +18,34 @@
 #include <BillboardText.h>
 
 static int slices = 16; int stacks = 16;    //  Shape Variables
-double rotSpeed = 50;                       //
-
-double mX, mY;
+static double rotSpeed = 50;                //
 
 Camera cam;     // create camera object
 
 bool tFpsCounter = false,   //
-     tWireframe = true,     //  Bools for toggling FPS/WF/Solid
-     tSolid = true;         //
+            tWireframe = true,     //  Bools for toggling FPS/WF/Solid
+            tSolid = true,         //
+
+            cRotatable;
 
 /* GLUT callback Handlers */
 
 static void resize(int width, int height)
 {
     const float ar = (float) width / (float) height;
-
-    glViewport(0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
+    glMatrixMode(GL_PROJECTION);
 
-    gluLookAt(cam.cPos.x, cam.cPos.y, cam.cPos.z,
-              cam.tPos.x, cam.tPos.y, cam.tPos.z,
-              cam.oPos.x, cam.oPos.y, cam.oPos.z);
+    glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity() ;
+
+    glViewport(0, 0, width, height);
+    glLoadIdentity() ;
 }
 
-
-
-void renderBillboardText(vec3D loc, void *font, char *string) {
-
-}
-
-static void drawGrid(int amt) {
+void drawGrid(int amt) {
     int nAmt = (amt * -1);  // create variable for negative amount
     glBegin(GL_LINES);
         glColor3f(0, 0.5, 0);
@@ -82,6 +74,10 @@ static void display(void)
     const double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;   // time passed
     const double a = t*rotSpeed;
 
+    cam.updateCamera();
+
+
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(0.3,0.3,0.3);
     glEnable(GL_LIGHTING);
@@ -93,7 +89,6 @@ static void display(void)
 
     if(tSolid) {
         glPushMatrix();
-
             glTranslated(-2.4, shapeHeight ,-6);
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
@@ -178,10 +173,9 @@ static void display(void)
     //  TEXT
     */
 
-    BillboardText txtSlices(vec3D(-0.25, 2, -6), textToDisplay),
-                  txtStacks(vec3D(-0.25, 3, -6), textToDisplay),
-                  txtFPS   (vec3D(-0.25, 4, -6), fpsCounter);
-
+    BillboardText txtSlices (vec3D(-0.5, 1.5, -6), textToDisplay),
+                  txtStacks (vec3D(0.5, 1.5, -6), textToDisplay),
+                  txtFPS    (vec3D(0, 2, -6), fpsCounter);
 
     if(tFpsCounter) {
         glPushMatrix();
@@ -198,14 +192,23 @@ static void display(void)
 
         sprintf(textToDisplay, "Stacks: %d", stacks);
         txtStacks.render();
-
     glPopMatrix();
 
-    drawGrid(40); // draw grid for dem aesthetics
+    cam.updateCamera();
 
+    drawGrid(100); // draw grid for dem aesthetics
     glutSwapBuffers();
 }
 
+void onMouseDown(int button, int state, int x, int y) {
+
+}
+
+void onMouseMove(int x, int y) {
+
+
+    glutPostRedisplay();
+}
 
 
 static void key(unsigned char key, int x, int y)
@@ -216,44 +219,33 @@ static void key(unsigned char key, int x, int y)
         case 'q':   exit(0); break;     // quit
 
         case '+':   slices++; stacks++; break;  // increment slices & stacks
-
         case '-':   if (slices>3 && stacks>3) { slices--; stacks--; } break;  // decrement slices & stacks
-
         case '.':   rotSpeed += 10; break;  // increase rotation
-
         case ',':   if(rotSpeed != 0) {rotSpeed -= 10; } break; // slow rotation
+        case 'w':   stacks++;  break;
+        case 's':   if(stacks > 3) { stacks--; } break;
+        case 'd':   slices++; break;
+        case 'a':   if(slices > 3) { slices--; } break;
 
-        case 'n':   cam.changeCPos(0, 2, 5);     break; // change cam position
-
-        case 'm':   cam.rotate(2, 2);     break; // change cam position
     }
     glutPostRedisplay();
 }
-
 
 void specialKeys(int key, int x, int y)
 {
     switch(key)
     {
         case GLUT_KEY_F1:    tSolid = !tSolid;               break;
-
         case GLUT_KEY_F2:    tWireframe = !tWireframe;       break;
-
         case GLUT_KEY_F3:    tFpsCounter = !tFpsCounter;     break;
-
-        case GLUT_KEY_UP:    stacks++;                       break;
-
-        case GLUT_KEY_DOWN:  if(stacks > 3) { stacks--; }    break;
-
-        case GLUT_KEY_RIGHT: slices++;                       break;
-
-        case GLUT_KEY_LEFT:  if(slices > 3) { slices--; }    break;
-
+        case GLUT_KEY_UP:               break;
+        case GLUT_KEY_DOWN:             break;  // RESERVED FOR CAM CONTROLS
+        case GLUT_KEY_RIGHT:            break;
+        case GLUT_KEY_LEFT:             break;
         case GLUT_KEY_HOME:  slices = 16; stacks = 16;       break;
+
     }
 }
-
-
 
 static void idle(void)
 {
@@ -267,7 +259,6 @@ static void idle(void)
 	 	timebase = time;
 		frame = 0;
 	}
-
     glutPostRedisplay();
 }
 
@@ -295,6 +286,9 @@ int main(int argc, char *argv[])
     glutReshapeFunc(resize);
     glutDisplayFunc(display);
     glutKeyboardFunc(key);
+    glutMouseFunc(onMouseDown);
+    glutMotionFunc(onMouseMove);
+
     glutSpecialFunc(specialKeys);
     glutIdleFunc(idle);
     glClearColor(0.1,0.1,0.1,1);

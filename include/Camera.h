@@ -18,10 +18,10 @@ class Camera
         void changeCPos(float x, float y, float z);
         void changeOPos(float x, float y, float z);
 
-        void rotate(float phi, float theta);
-
-
         void updateCamera();
+
+        void rotateX(float speed);
+        void rotateY(float speed);
 
 
     protected:
