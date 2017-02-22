@@ -93,6 +93,7 @@ static void display(void)
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutSolidSphere(1,slices,stacks);
+
             glShadeModel(GL_FLAT);
         glPopMatrix();
 
@@ -101,6 +102,8 @@ static void display(void)
             glRotated(shapeRot,1,0,0);
             glRotated(a,0,0,1);
             glutSolidCone(1,1.8,slices,stacks);
+
+
         glPopMatrix();
 
         glPushMatrix();
