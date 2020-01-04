@@ -21,10 +21,7 @@
 #define WLENGTH 1280    // define window size
 #define WHEIGHT 1024
 
-
-GLuint fogMode[]= { GL_EXP, GL_EXP2, GL_LINEAR };   // Storage For Three Types Of Fog
-GLuint fogfilter= 0;                    // Which Fog To Use
-GLfloat fogColor[4]= {0.0f, 0.1f, 0.0f, 1.0f};      // Fog Color
+GLfloat fogColor[4]= {0.0f, 0.1f, 0.0f, 1.0f};      // fog color
 
 static int slices = 16; int stacks = 16;    //  Shape Variables
 static double rotSpeed = 50;                //
@@ -41,7 +38,7 @@ bool        tFpsCounter = false,   //
 static void resize(int width, int height)
 {
     const float ar = (float) width / (float) height;
-    glLoadIdentity();
+    //glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
 
     glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
@@ -51,7 +48,9 @@ static void resize(int width, int height)
     glLoadIdentity();
 
     glutReshapeWindow(WLENGTH, WHEIGHT);
+
     glViewport(0, 0, width, height);
+
 }
 
 void drawGrid(int amt) {
@@ -192,8 +191,8 @@ static void display(void)
 
 
     OnscreenText controlText1(0, WHEIGHT - 20, "Increase / Decrease: Slices = A / D | Stacks = W / S | Proportionally: Numpad + and -"),
-                 controlText2(0, WHEIGHT - 45, "Toggle: Shapes (F1), Wireframe (F2)"),
-                 controlText3(0, WHEIGHT - 70, "Rotation Speed: < and > ");
+                 controlText2(0, WHEIGHT - 50, "Toggle: Shapes (F1), Wireframe (F2)"),
+                 controlText3(0, WHEIGHT - 75, "Rotation Speed: < and > ");
 
     glPushMatrix();
         glLoadIdentity();
@@ -244,13 +243,11 @@ void specialKeys(int key, int x, int y)
         case GLUT_KEY_F2:    tWireframe = !tWireframe;       break;
         case GLUT_KEY_F3:    tFpsCounter = !tFpsCounter;     break;
         case GLUT_KEY_HOME:  slices = 16; stacks = 16;       break;
-
     }
 }
 
 static void idle(void)
 {
-
     glutPostRedisplay();
 }
 
