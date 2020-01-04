@@ -10,7 +10,7 @@ Camera::Camera()
     cPos = vec3D(0, 3, 0);
     oPos = vec3D(0, 1, 0);
 
-    updateCamera();
+    update();
     //ctor
 }
 
@@ -22,22 +22,22 @@ Camera::~Camera()
 void Camera::changeTPos(float x, float y, float z)
 {
     tPos = vec3D(x, y, z);
-    updateCamera();
+    update();
 }
 
 void Camera::changeCPos(float x, float y, float z)
 {
     cPos = vec3D(x, y, z);
-    updateCamera();
+    update();
 }
 
 void Camera::changeOPos(float x, float y, float z)
 {
     oPos = vec3D(x, y, z);
-    updateCamera();
+    update();
 }
 
-void Camera::updateCamera()
+void Camera::update()
 {
     glLoadIdentity();
 

@@ -1,6 +1,9 @@
 #ifndef BILLBOARDTEXT_H
 #define BILLBOARDTEXT_H
 #include "vec3D.h"
+#include <string>
+
+using std::string;
 
 class BillboardText
 {
@@ -10,9 +13,10 @@ class BillboardText
 
         vec3D textPosition;
         void* font;
-        char* string;
+        //char* string;
+        char* str;
 
-        void setPos(vec3D position);
+        void setPos(vec3D pos);
         void setText(char* text);
         void setFont(void* fnt);
         void render();
