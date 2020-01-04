@@ -126,7 +126,7 @@ static void display(void)
     //  EDGE HIGHLIGHTING
     */
 
-        glColor3d(0.1,0.1,0.1);
+        glColor3d(0.3,0.3,0.3);
 
         glPushMatrix();
             glDisable(GL_LIGHTING);
@@ -272,8 +272,6 @@ int main(int argc, char *argv[])
     glutInitWindowSize(WLENGTH, WHEIGHT);
     glutInitWindowPosition(2000,300);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-
-//    glfwWindowHint(GLFW_SAMPLES, 4);
 
     glutCreateWindow("Vertex Count Demo");
 
