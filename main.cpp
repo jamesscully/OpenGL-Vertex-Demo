@@ -38,22 +38,21 @@ bool        tFpsCounter = false,   //
 static void resize(int width, int height)
 {
     const float ar = (float) width / (float) height;
-    //glLoadIdentity();
-    glMatrixMode(GL_PROJECTION);
-
-    glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
-
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    glutReshapeWindow(WLENGTH, WHEIGHT);
 
     glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(-ar, ar, -1.0, 1.0, 2.0, 100.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity() ;
+
+    gluLookAt(0,3,0, 0, 2, -6, 0, 6, 0);
 
 }
 
 void drawGrid(int amt) {
+
     int nAmt = (amt * -1);  // create variable for negative amount
     glBegin(GL_LINES);
         glColor3f(0, 0.5, 0);
@@ -87,8 +86,6 @@ static void display(void)
 
     const double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;   // time passed
     const double a = t*rotSpeed;
-
-    cam.update();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(0.3,0.3,0.3);
@@ -124,34 +121,7 @@ static void display(void)
             glutSolidCylinder(1, 1.8, slices, stacks);
         glPopMatrix();
 
-    /*
-    //  EDGE HIGHLIGHTING
-    */
 
-        glColor3d(0.3,0.3,0.3);
-
-        glPushMatrix();
-            glDisable(GL_LIGHTING);
-            glTranslated(-2.4, shapeHeight ,-6);
-            glRotated(shapeRot,1,0,0);
-            glRotated(a,0,0,1);
-            glutWireSphere(1.01,slices,stacks);
-            glShadeModel(GL_FLAT);
-        glPopMatrix();
-
-        glPushMatrix();
-            glTranslated(0, (shapeHeight + 0.8) ,-6);
-            glRotated(shapeRot,1,0,0);
-            glRotated(a,0,0,1);
-            glutWireCone(1.01,1.8,slices,stacks);
-        glPopMatrix();
-
-        glPushMatrix();
-            glTranslated(2.4, (shapeHeight + 0.8) ,-6);
-            glRotated(shapeRot,1,0,0);
-            glRotated(a,0,0,1);
-            glutWireCylinder(1.01, 1.8, slices, stacks);
-        glPopMatrix();
     }
 
     /*
@@ -212,7 +182,7 @@ static void display(void)
 
     glPopMatrix();
 
-    drawFog();
+    // drawFog();
     drawGrid(100); // draw grid for dem aesthetics
 
     glutSwapBuffers();
